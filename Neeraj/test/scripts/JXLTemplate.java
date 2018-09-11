@@ -1,14 +1,23 @@
 package scripts;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
 
 import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
+import jxl.read.biff.BiffException;
+import jxl.write.Label;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
+import jxl.write.biff.RowsExceededException;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.annotations.*;
@@ -36,16 +45,16 @@ public class JXLTemplate {
 				+ new Timestamp(date.getTime()));
 
 	}
-	
+
 	@DataProvider(name = "AnyID")
 	public Object[][] createData1() {
-		Object[][] retObjArr = getTableArray("test\\resources\\data\\book_data1.xls",
-				"DataPool", "bookTestData1");//method is defined below
+		Object[][] retObjArr = getTableArray(
+				"test\\resources\\data\\book_data1.xls", "DataPool",
+				"bookTestData1");// method is defined below
 		return (retObjArr);
 	}
-	
 
-	@Test(dataProvider="AnyID")
+	@Test(dataProvider = "AnyID")
 	public void xmlTest(String booktitle, String authorname) {
 
 		driver.get("http://www.barnesandnoble.com/");
@@ -53,7 +62,7 @@ public class JXLTemplate {
 			driver.findElement(By.className("icon-close-modal")).click();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			//e.printStackTrace();
+			// e.printStackTrace();
 			System.out.println("popup did not appear");
 		}
 
@@ -62,7 +71,7 @@ public class JXLTemplate {
 		driver.findElement(By.className("icon-search-2")).click();
 		driver.findElement(By.linkText(booktitle)).click();
 		s_assert.assertTrue(verifyTextPresent(authorname));
-		
+
 	}
 
 	@AfterTest
@@ -78,7 +87,7 @@ public class JXLTemplate {
 		boolean x = driver.getPageSource().contains(value);
 		return x;
 	}
-	
+
 	public String[][] getTableArray(String xlFilePath, String sheetName,
 			String tableName) {
 		String[][] tabArray = null;
@@ -116,5 +125,37 @@ public class JXLTemplate {
 
 		return (tabArray);
 	}
-	
+
+	public void writeToExcel(String fileName, String sheetName,
+			String searchKeyword, String resultCount) throws BiffException,
+			RowsExceededException, WriteException {
+		try {
+			Workbook workbook = Workbook.getWorkbook(new File(fileName));
+			WritableWorkbook writeableWB = Workbook.createWorkbook(new File(
+					fileName), workbook);
+			WritableSheet sheet = writeableWB.getSheet(sheetName);
+			Cell keyCell = sheet.findCell(searchKeyword);
+
+			int keyRow = keyCell.getRow();
+			int keyCol = keyCell.getColumn();
+			Label label = new Label((keyCol + 1), keyRow, resultCount);
+			sheet.addCell(label);
+			writeableWB.write();
+			writeableWB.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private boolean isElementPresent(By by) {
+		try {
+			driver.findElement(by);
+			return true;
+		} catch (NoSuchElementException e) {
+			return false;
+		}
+	}
+
 }

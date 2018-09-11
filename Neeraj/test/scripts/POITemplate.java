@@ -4,11 +4,14 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -103,20 +106,7 @@ public class POITemplate {
 		driver.findElement(By.id("navbar-query")).sendKeys(movieTitle);
 		driver.findElement(By.id("navbar-submit-button")).click();
 
-		/*
-		 * for (int second = 0;; second++) { if (second >= 60) fail("timeout");
-		 * try { if (isElementPresent(By.linkText(movieTitle))) break; } catch
-		 * (Exception e) {} Thread.sleep(1000); }
-		 */
-
 		driver.findElement(By.linkText(movieTitle)).click();
-
-		/*
-		 * for (int second = 0;; second++) { if (second >= 60) fail("timeout");
-		 * try { if (isElementPresent(By.xpath(
-		 * "xpath=/html/body[@id='styleguide-v2']/div[@id='wrapper']/div[@id='root']/div[@id='pagecontent']/div[@id='content-2-wide']/div[@id='maindetails_center_top']/div/div/table[@id='title-overview-widget-layout']/tbody/tr[1]/td[@id='overview-top']/div[6]/a[3]"
-		 * ))) break; } catch (Exception e) {} Thread.sleep(1000); }
-		 */
 
 		if (verifyTextPresent(directorName))
 			System.out.println("Found Dir Name: " + directorName);
@@ -156,4 +146,41 @@ public class POITemplate {
 			return false;
 		}
 	}
+	
+	public void writeToExcel(String fileName,String sheetName,String searchKeyword,String resultCount){
+		Workbook wb = null;
+		try {
+		File file = new File(fileName);
+		FileInputStream fs = new FileInputStream(file);
+		if(fileName.substring(fileName.indexOf(".")).equals(".xlsx")){
+		    //If it is xlsx file then create object of XSSFWorkbook class
+		    wb = new XSSFWorkbook(fs);
+		} else if(fileName.substring(fileName.indexOf(".")).equals(".xls")){
+		//If it is xls file then create object of XSSFWorkbook class
+		wb = new HSSFWorkbook(fs);
+		}
+		Sheet sh = wb.getSheet(sheetName);
+		int totalNoOfRows = sh.getPhysicalNumberOfRows();
+		// int totalNoOfCols = sh.getRow(0).getPhysicalNumberOfCells();
+		 
+		for (int i= 1 ; i <= totalNoOfRows-1; i++) {
+		if (sh.getRow(i).getCell(0).getStringCellValue().equals(searchKeyword)) {
+		//row = 1, col = 1
+					sh.getRow(i).createCell(1)
+							.setCellType(Cell.CELL_TYPE_STRING);
+		sh.getRow(i).createCell(1).setCellValue(resultCount);
+		break;
+		}
+		}
+		FileOutputStream fos=new FileOutputStream(fileName);
+		wb.write(fos);
+		fos.close();
+		} catch (FileNotFoundException e) {
+		e.printStackTrace();
+		} catch (IOException e) {
+		e.printStackTrace();
+		}
+		}
+		 
+		
 }
