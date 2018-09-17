@@ -253,5 +253,43 @@ Actions action = new Actions(driver);
 		FileUtils.copyFile(scrFile, new File("D:\\workspace-selenium_maven_jenkins\\TSL-719\\test\\resources\\screenshots\\Day3Exercise1\\screenshot.png"));
 		
     
+    
+    /*
+		 * differentiate with driver.quit();
+		 * 
+		 * driver.close and driver.quit are two different methods for closing
+		 * the browser session in Selenium WebDriver. Understanding both of them
+		 * and knowing when to use each method is important in your test
+		 * execution. Therefore, I have tried to shed some light on both of
+		 * these methods.
+		 * 
+		 * driver.close - This method closes the browser window on which the
+		 * focus is set.
+		 * 
+		 * driver.quit – This method basically calls driver.dispose a now
+		 * internal method which in turn closes all of the browser windows and
+		 * ends the WebDriver session gracefully.It is used to shut down the web
+		 * driver instance or destroy the web driver instance
+		 * 
+		 * driver.dispose - As mentioned previously, is an internal method of
+		 * WebDriver which has been silently dropped according to another answer
+		 * - Verification needed. This method really doesn't have a use-case in
+		 * a normal test workflow as either of the previous methods should work
+		 * for most use cases.
+		 * 
+		 * Explanation use case: You should use driver.quit whenever you want to
+		 * end the program. It will close all opened browser windows and
+		 * terminates the WebDriver session. If you do not use driver.quit at
+		 * the end of the program, the WebDriver session will not close properly
+		 * and files would not be cleared from memory. This may result in memory
+		 * leak errors.
+		 * 
+		 * The above explanation should explain the difference between
+		 * driver.close and driver.quit methods in WebDriver. I hope you find it
+		 * useful.
+		 * 
+		 * The following website has some good tips on selenium testing :
+		 * http://www.testingdiaries.com/
+		 */
 
 
